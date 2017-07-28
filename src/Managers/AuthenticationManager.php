@@ -35,7 +35,7 @@ class AuthenticationManager extends AbstractManager
         $user->{User::TOKEN_EXPIRES} = null;
     }
 
-    public function register(array $request): void
+    public function register(array $request): int
     {
         $user = new User();
         $user->{User::EMAIL} = $request[User::EMAIL];
@@ -45,6 +45,8 @@ class AuthenticationManager extends AbstractManager
         $user->{USER::LAST_NAME} = $request[User::LAST_NAME];
         $user->{User::TOKEN_EXPIRES} = Carbon::now()->addHour(1);
         $user->saveOrFail();
+
+        return $user->{User::ID};
     }
 
     public function resetPassword(array $request): void

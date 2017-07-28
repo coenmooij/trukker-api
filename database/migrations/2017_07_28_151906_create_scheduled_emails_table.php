@@ -23,6 +23,7 @@ class CreateScheduledEmailsTable extends Migration
                 $table->dateTime('deliver_at')->nullable();
                 $table->string('status');
                 $table->timestamps();
+                $table->index(['deliver_at', 'status']);
             }
         );
     }

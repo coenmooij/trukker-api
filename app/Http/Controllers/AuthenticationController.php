@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Managers\AuthenticationManager;
+use App\Managers\ClientManager;
+use App\Models\Client;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
@@ -23,6 +25,11 @@ class AuthenticationController extends AbstractController
      */
     private $authenticationManager;
 
+    /**
+     * @var ClientManager
+     */
+    private $clientManager;
+
     public function __construct(AuthenticationManager $authenticationManager, ClientManager $clientManager)
     {
         $this->authenticationManager = $authenticationManager;
@@ -31,6 +38,13 @@ class AuthenticationController extends AbstractController
 
     public function login(Request $request): JsonResponse
     {
+        $this->validate(
+            $request,
+            [
+                'email' => 'required|email|max:255',
+                'password' => 'required|max:255',
+            ]
+        );
         $token = $this->authenticationManager->login($request->request->all());
 
         return $this->createResponse(['message' => self::LOGIN_SUCCESS, 'token' => $token], Response::HTTP_CREATED);
@@ -49,12 +63,18 @@ class AuthenticationController extends AbstractController
 
     public function registerClient(Request $request): JsonResponse
     {
-        $this->clientManager->createClient();
-        // TODO : implement
-        // Create client by name
-        // register user
-        // attach user to client
-        // send response
+        $request = $request->request->all();
+        try {
+            $clientId = $this->clientManager->createClient([Client::NAME => $request['client_name']);
+            unset($request['client_name']);
+            $userId = $this->authenticationManager->register($request);
+        } catch (\Exception $exception) {
+            return $this->createResponse(['message' => self::REGISTER_FAILED], Response::HTTP_FORBIDDEN);
+        }
+
+        $this->clientManager->addUser($clientId, $userId);
+
+        return $this->createResponse(['message' => self::REGISTER_SUCCESS], Response::HTTP_CREATED);
     }
 
     public function logout(Request $request): JsonResponse

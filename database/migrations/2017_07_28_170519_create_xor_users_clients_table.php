@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateUsersTable extends Migration
+class CreateXorUsersClientsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,18 +13,13 @@ class CreateUsersTable extends Migration
     public function up()
     {
         Schema::create(
-            'users',
+            'xor_users_clients',
             function (Blueprint $table) {
                 $table->increments('id');
-                $table->string('email')->unique();
-                $table->string('password', 60);
-                $table->string('salt')->unique();
-                $table->string('first_name');
-                $table->string('last_name');
-                $table->string('token')->nullable();
-                $table->dateTime('token_expires')->nullable();
+                $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+                $table->foreign('client_id')->references('id')->on('clients');
                 $table->timestamps();
-                $table->index(['token']);
+                $table->index(['user_id', 'client_id']);
             }
         );
     }
@@ -35,6 +30,6 @@ class CreateUsersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('xor_users_clients');
     }
 }
