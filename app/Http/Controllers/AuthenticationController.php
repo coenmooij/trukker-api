@@ -20,6 +20,25 @@ class AuthenticationController extends AbstractController
     const LOGOUT_SUCCESS = 'Logout successful';
     const PASSWORD_RESET = 'Password reset link was sent';
 
+    const LOGIN_RULES = [
+        'email' => 'required|email|max:255',
+        'password' => 'required|max:255',
+    ];
+
+    const REGISTER_RULES = [
+        'email' => 'required|email|max:255',
+        'password' => 'required|max:255',
+    ];
+
+    const REGISTER_CLIENT_RULES = [
+        'company' => 'required|max:255',
+        'email' => 'required|email|max:255',
+        'password' => 'required|max:255',
+    ];
+    const RESET_PASSWORD_RULES = [
+        'email' => 'required|email|max:255',
+    ];
+
     /**
      * @var AuthenticationManager
      */
@@ -38,22 +57,17 @@ class AuthenticationController extends AbstractController
 
     public function login(Request $request): JsonResponse
     {
-        $this->validate(
-            $request,
-            [
-                'email' => 'required|email|max:255',
-                'password' => 'required|max:255',
-            ]
-        );
-        $token = $this->authenticationManager->login($request->request->all());
+        $this->validate($request, self::LOGIN_RULES);
+        $token = $this->authenticationManager->login($request->only(array_keys(self::LOGIN_RULES)));
 
         return $this->createResponse(['message' => self::LOGIN_SUCCESS, 'token' => $token], Response::HTTP_CREATED);
     }
 
     public function register(Request $request): JsonResponse
     {
+        $this->validate($request, self::REGISTER_RULES);
         try {
-            $this->authenticationManager->register($request->request->all());
+            $this->authenticationManager->register($request->only(array_keys(self::REGISTER_RULES)));
         } catch (QueryException $exception) {
             return $this->createResponse(['message' => self::REGISTER_FAILED], Response::HTTP_FORBIDDEN);
         }
@@ -63,11 +77,10 @@ class AuthenticationController extends AbstractController
 
     public function registerClient(Request $request): JsonResponse
     {
-        $request = $request->request->all();
+        $this->validate($request, self::REGISTER_CLIENT_RULES);
         try {
-            $clientId = $this->clientManager->createClient([Client::NAME => $request['client_name']);
-            unset($request['client_name']);
-            $userId = $this->authenticationManager->register($request);
+            $clientId = $this->clientManager->createClient([Client::NAME => $request['client_name']]);
+            $userId = $this->authenticationManager->register($request->only(self::REGISTER_RULES));
         } catch (\Exception $exception) {
             return $this->createResponse(['message' => self::REGISTER_FAILED], Response::HTTP_FORBIDDEN);
         }
@@ -90,8 +103,9 @@ class AuthenticationController extends AbstractController
 
     public function resetPassword(Request $request): JsonResponse
     {
+        $this->validate($request, self::RESET_PASSWORD_RULES);
         try {
-            $this->authenticationManager->resetPassword($request->request->all());
+            $this->authenticationManager->resetPassword($request->get('email'));
         } catch (ModelNotFoundException $exception) {
             // TODO : log that trying to reset a password for non existent user
         }
