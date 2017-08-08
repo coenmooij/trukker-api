@@ -28,12 +28,16 @@ class AuthenticationController extends AbstractController
     const REGISTER_RULES = [
         'email' => 'required|email|max:255',
         'password' => 'required|max:255',
+        'first_name' => 'required|max:255',
+        'last_name' => 'required|max:255',
     ];
 
     const REGISTER_CLIENT_RULES = [
         'company' => 'required|max:255',
         'email' => 'required|email|max:255',
         'password' => 'required|max:255',
+        'first_name' => 'required|max:255',
+        'last_name' => 'required|max:255',
     ];
     const RESET_PASSWORD_RULES = [
         'email' => 'required|email|max:255',
