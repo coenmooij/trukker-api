@@ -82,9 +82,12 @@ class AuthenticationController extends AbstractController
     public function registerClient(Request $request): JsonResponse
     {
         $this->validate($request, self::REGISTER_CLIENT_RULES);
+        // TODO : get client, see if already exists for that name
+        // TODO : get email, see if already a user
+        // throw a 422 with the specific field in the json
         try {
-            $clientId = $this->clientManager->createClient([Client::NAME => $request['client_name']]);
-            $userId = $this->authenticationManager->register($request->only(self::REGISTER_RULES));
+            $clientId = $this->clientManager->createClient([Client::NAME => $request['company']]);
+            $userId = $this->authenticationManager->register($request->only(array_keys(self::REGISTER_RULES)));
         } catch (\Exception $exception) {
             return $this->createResponse(['message' => self::REGISTER_FAILED], Response::HTTP_FORBIDDEN);
         }

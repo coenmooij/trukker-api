@@ -39,10 +39,10 @@ class AuthenticationManager extends AbstractManager
     {
         $user = new User();
         $user->{User::EMAIL} = $request[User::EMAIL];
-        $user->{USER::SALT} = $this->createSalt($user->{User::EMAIL});
-        $user->{USER::PASSWORD} = $this->hashPassword($request[User::PASSWORD], $user->salt);
-        $user->{USER::FIRST_NAME} = $request[User::FIRST_NAME];
-        $user->{USER::LAST_NAME} = $request[User::LAST_NAME];
+        $user->{User::SALT} = $this->createSalt($user->{User::EMAIL});
+        $user->{User::PASSWORD} = $this->hashPassword($request[User::PASSWORD], $user->{User::SALT});
+        $user->{User::FIRST_NAME} = $request[User::FIRST_NAME];
+        $user->{User::LAST_NAME} = $request[User::LAST_NAME];
         $user->{User::TOKEN_EXPIRES} = Carbon::now()->addHour(1);
         $user->saveOrFail();
 
