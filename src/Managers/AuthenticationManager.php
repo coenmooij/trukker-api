@@ -30,9 +30,10 @@ class AuthenticationManager extends AbstractManager
 
     public function logout(string $token): void
     {
-        $user = $this->getUser(User::TOKEN, $token);
+        $user = $this->authenticate($token);
         $user->{User::TOKEN} = null;
         $user->{User::TOKEN_EXPIRES} = null;
+        $user->saveOrFail();
     }
 
     public function register(array $request): int
@@ -49,9 +50,9 @@ class AuthenticationManager extends AbstractManager
         return $user->{User::ID};
     }
 
-    public function resetPassword(array $request): void
+    public function resetPassword(string $email): void
     {
-        $user = $this->getUser(User::EMAIL, $request[User::EMAIL]);
+        $user = $this->getUser(User::EMAIL, $email);
         $passwordReset = new PasswordReset();
         $passwordReset->{PasswordReset::EMAIL} = $user->{User::EMAIL};
         $passwordReset->{PasswordReset::TOKEN} = $this->createToken($user);
@@ -94,7 +95,8 @@ class AuthenticationManager extends AbstractManager
     private function createToken(User $user)
     {
         $token = $user->{User::ID} . bin2hex(random_bytes(64));
-        $user->token = $token;
+        $user->{User::TOKEN} = $token;
+        $user->{User::TOKEN_EXPIRES} = Carbon::now()->addHours(1);
         $user->save();
 
         return $token;

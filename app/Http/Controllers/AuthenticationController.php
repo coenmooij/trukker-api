@@ -19,6 +19,7 @@ class AuthenticationController extends AbstractController
     const REGISTER_FAILED = 'Registration failed';
     const LOGOUT_SUCCESS = 'Logout successful';
     const PASSWORD_RESET = 'Password reset link was sent';
+    const TOKEN_NOT_VALID = 'token not valid';
 
     const LOGIN_RULES = [
         'email' => 'required|email|max:255',
@@ -84,7 +85,7 @@ class AuthenticationController extends AbstractController
         $this->validate($request, self::REGISTER_CLIENT_RULES);
         // TODO : get client, see if already exists for that name
         // TODO : get email, see if already a user
-        // throw a 422 with the specific field in the json
+        // TODO : throw a 422 with the specific field in the json
         try {
             $clientId = $this->clientManager->createClient([Client::NAME => $request['company']]);
             $userId = $this->authenticationManager->register($request->only(array_keys(self::REGISTER_RULES)));
@@ -102,7 +103,7 @@ class AuthenticationController extends AbstractController
         try {
             $this->authenticationManager->logout($request->header('token', ''));
         } catch (ModelNotFoundException $exception) {
-            // TODO : log that logout failed
+            return $this->createResponse(['message' => self::TOKEN_NOT_VALID], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         return $this->createResponse(['message' => self::LOGOUT_SUCCESS], Response::HTTP_OK);
@@ -112,7 +113,7 @@ class AuthenticationController extends AbstractController
     {
         $this->validate($request, self::RESET_PASSWORD_RULES);
         try {
-            $this->authenticationManager->resetPassword($request->get('email'));
+            $this->authenticationManager->resetPassword($request->request->get('email'));
         } catch (ModelNotFoundException $exception) {
             // TODO : log that trying to reset a password for non existent user
         }
