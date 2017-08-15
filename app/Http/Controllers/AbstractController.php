@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class AbstractController extends Controller
@@ -16,5 +18,10 @@ class AbstractController extends Controller
     protected function resourceNotAccessible()
     {
         return $this->createResponse(['message' => self::RESOURCE_NOT_ACCESSIBLE], Response::HTTP_FORBIDDEN);
+    }
+
+    protected function getUserId(Request $request)
+    {
+        return $request->attributes->get('user')[User::ID];
     }
 }

@@ -59,13 +59,4 @@ class JobProfileController extends AbstractController
         }
         return $this->createResponse($jobProfile->toArray(), Response::HTTP_CREATED);
     }
-
-    /**
-     * @param Request $request
-     * @return mixed
-     */
-    public function getUserId(Request $request)
-    {
-        return $request->attributes->get('user')[User::ID];
-    }
 }

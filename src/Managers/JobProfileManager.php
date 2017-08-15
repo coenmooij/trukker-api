@@ -3,7 +3,7 @@
 namespace App\Managers;
 
 use App\Models\JobProfile;
-use App\Models\XorUserClient;
+use Symfony\Component\HttpFoundation\Request;
 
 class JobProfileManager extends AbstractManager
 {
@@ -17,10 +17,11 @@ class JobProfileManager extends AbstractManager
 
     }
 
-    public function getJobProfilesForUser($userId): array
+    public function getJobProfilesForUser(int $userId): array
     {
         $clientId = $this->getClientId($userId);
         $collection = JobProfile::where(JobProfile::CLIENT_ID, $clientId)->get([
+            JobProfile::ID,
             JobProfile::TITLE,
             JobProfile::DESCRIPTION,
             JobProfile::LICENSE,
@@ -31,7 +32,7 @@ class JobProfileManager extends AbstractManager
         return $collection->toArray();
     }
 
-    public function createJobProfileForUser($request, $userId): JobProfile
+    public function createJobProfileForUser(Request $request, int $userId): JobProfile
     {
         $clientId = $this->getClientId($userId);
         $jobProfile = new JobProfile($request);
@@ -39,12 +40,5 @@ class JobProfileManager extends AbstractManager
         $jobProfile->saveOrFail();
 
         return $jobProfile;
-    }
-
-    private function getClientId(int $userId): int
-    {
-        return XorUserClient::where(XorUserClient::USER_ID, $userId)
-            ->select(XorUserClient::CLIENT_ID)
-            ->firstOrFail()->{XorUserClient::CLIENT_ID};
     }
 }
