@@ -3,7 +3,6 @@
 namespace App\Managers;
 
 use App\Models\Shift;
-use Symfony\Component\HttpFoundation\Request;
 
 class ShiftManager extends AbstractManager
 {
@@ -48,7 +47,7 @@ class ShiftManager extends AbstractManager
 
     }
 
-    public function createShiftForUser(Request $request, int $jobProfileId, int $userId): Shift
+    public function createShiftForUser(array $request, int $jobProfileId, int $userId): Shift
     {
         $this->jobProfileManager->getJobProfileForUser($jobProfileId, $userId);
         $shift = new Shift($request);

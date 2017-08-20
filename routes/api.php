@@ -17,6 +17,7 @@ Route::middleware('auth')->group(
         Route::get('/jobProfiles/{id}', 'JobProfileController@get');
 
         Route::get('/jobProfiles/{id}/shifts', 'ShiftController@getAll');
+        Route::post('/jobProfiles/{id}/shifts', 'ShiftController@post');
         Route::get('/shifts/{id}', 'ShiftController@get');
     }
 );
